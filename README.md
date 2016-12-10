@@ -1,3 +1,3 @@
 # Moire
 
-http://htmlpreview.github.com/Moire/blob/master/index.html
+https://htmlpreview.github.io/?https://github.com/benmcevoy/Moire/blob/master/index.html
