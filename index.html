@@ -1,0 +1,140 @@
+<html>
+
+<head>
+    <title>Moire</title>
+    <style>
+        canvas {
+            position: absolute;
+            top: 10;
+            left: 10
+        }
+    </style>
+</head>
+
+<body>
+    <div style="height:830px">
+        <canvas id="main" height="800" width="800"></canvas>
+        <canvas id="clone" height="800" width="800"></canvas>
+    </div>
+
+    <div>
+        <h3>Moire (<a href="https://www.youtube.com/watch?v=QAja2jp1VjE">Freaky Dot Patterns - Numberphile</a>)</h3>
+        <div class="field">
+            <label for="horizontalOffset">Horizontal offset</label>
+            <input type="range" id="horizontalOffset" value="0.0" min="-50" max="50.0" step="0.01" />
+        </div>
+
+        <div class="field">
+            <label for="verticalOffset">Vertical offset</label>
+            <input type="range" id="verticalOffset" value="0.0" min="-50" max="50.0" step="0.01" />
+        </div>
+        <div class="field">
+            <label for="rotation">Rotation</label>
+            <input type="range" id="rotation" value="0.0" min="-1" max="1" step="0.001" />
+        </div>
+        <div class="field">
+            <label for="scale">Scale</label>
+            <input type="range" id="scale" value="1.0" min="0.9" max="1.1" step="0.001" />
+        </div>
+
+        <div class="field">
+            <button id="generateRandom">random</button>
+            <button id="generateUniform">uniform</button>
+        </div>
+
+    </div>
+
+    <script>
+"use strict"
+
+var moire = function () {
+    var ui = {
+        main: () => document.getElementById("main"),
+        mainCanvas: () => ui.main().getContext('2d'),
+
+        cloneCanvas: () => document.getElementById("clone").getContext('2d'),
+
+        horizontalOffsetInput: () => document.getElementById("horizontalOffset"),
+        verticalOffsetInput: () => document.getElementById("verticalOffset"),
+        rotationInput: () => document.getElementById("rotation"),
+        scaleInput: () => document.getElementById("scale"),
+
+        horizontalOffset: () => parseFloat(ui.horizontalOffsetInput().value),
+        verticalOffset: () => parseFloat(ui.verticalOffsetInput().value),
+        rotation: () => parseFloat(ui.rotationInput().value),
+        scale: () => parseFloat(ui.scaleInput().value)
+    };
+
+    var drawRandom = function () {
+        clear();
+
+        for (var i = 0; i < 16000; i++) {
+            drawPoint(getRandom(), getRandom(), 2);
+        }
+    };
+
+    var drawUniform = function () {
+        clear();
+
+        for (var x = 0; x < 800; x = x + 4) {
+            for (var y = 0; y < 800; y = y + 4) {
+                drawPoint(x, y, 2);
+            }
+        }
+    };
+
+    var drawPoint = function (x, y, radius) {
+        var ctx = ui.mainCanvas();
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 360);
+        ctx.fill();
+    };
+
+    var clear = function () {
+        ui.cloneCanvas().clearRect(0, 0, 800, 800);
+        ui.mainCanvas().clearRect(0, 0, 800, 800);
+
+        ui.horizontalOffsetInput().value = "0";
+        ui.verticalOffsetInput().value = "0";
+        ui.scaleInput().value = "1";
+        ui.rotationInput().value = "0";
+    }
+
+    var update = function () {
+        var ctx = ui.cloneCanvas();
+
+        ctx.clearRect(0, 0, 800, 800);
+        ctx.translate(ui.horizontalOffset(), ui.verticalOffset());
+        ctx.scale(ui.scale(), ui.scale());
+        ctx.rotate(ui.rotation());
+        ctx.drawImage(ui.main(), 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    };
+
+    var getRandom = function () {
+        return Math.floor(Math.random() * 800);
+    }
+
+    return {
+        update: update,
+        drawRandom: drawRandom,
+        drawUniform: drawUniform
+    };
+} ();
+
+
+    moire.drawUniform();
+
+    document.getElementById("generateRandom").addEventListener("click", moire.drawRandom);
+    document.getElementById("generateUniform").addEventListener("click", moire.drawUniform);
+    document.getElementById("rotation").addEventListener("input", moire.update);
+    document.getElementById("scale").addEventListener("input", moire.update);
+    document.getElementById("horizontalOffset").addEventListener("input", moire.update);
+    document.getElementById("verticalOffset").addEventListener("input", moire.update);
+
+</script>
+
+</body>
+
+</html>
